@@ -1,7 +1,7 @@
 {
-    "name": "radish/radish",
+    "name": "jadu/radish",
     "description": "",
-    "homepage": "http://github.com/tompedals/radish",
+    "homepage": "https://github.com/jadu/radish",
     "type": "library",
     "license": "MIT",
     "authors": [
