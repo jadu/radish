@@ -9,7 +9,7 @@
 Install the latest version with
 
 ```bash
-$ composer require radish/radish
+$ composer require jadu/radish
 ```
 
 ## About
@@ -20,11 +20,11 @@ Radish works with PHP 5.4 or above and the [PECL AMQP extension](https://github.
 
 ### Submitting bugs and feature requests
 
-Bugs and feature request are tracked on [GitHub](https://github.com/tompedals/radish/issues)
+Bugs and feature request are tracked on [GitHub](https://github.com/jadu/radish/issues)
 
 ### Framework Integrations
 
-- A [Symfony2 bundle](https://github.com/tompedals/RadishBundle) is available as standard
+- A [Symfony2 bundle](https://github.com/jadu/RadishBundle) is available as standard
 
 ### Author
 
