@@ -1,8 +1,8 @@
 # Radish
 
-[![Build Status](https://img.shields.io/travis/tompedals/radish.svg?style=flat-square)](https://travis-ci.org/tompedals/radish)
-[![Latest Version](https://img.shields.io/github/release/radish/radish.svg?style=flat-square)](https://packagist.org/packages/radish/radish)
-[![Total Downloads](https://img.shields.io/packagist/dt/radish/radish.svg?style=flat-square)](https://packagist.org/packages/radish/radish)
+[![Build Status](https://img.shields.io/travis/jadu/radish.svg?style=flat-square)](https://travis-ci.org/jadu/radish)
+[![Latest Version](https://img.shields.io/github/release/jadu/radish.svg?style=flat-square)](https://packagist.org/packages/jadu/radish)
+[![Total Downloads](https://img.shields.io/packagist/dt/jadu/radish.svg?style=flat-square)](https://packagist.org/packages/jadu/radish)
 
 ## Installation
 
