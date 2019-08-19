@@ -2,12 +2,11 @@
 
 namespace Radish\Consumer;
 
+use Psr\Log\LoggerInterface;
 use Radish\Broker\Message;
 use Radish\Broker\QueueCollection;
 use Radish\Middleware\InitializableInterface;
-use Radish\Middleware\MiddlewareInterface;
 use Radish\Middleware\Next;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class Consumer implements ConsumerInterface
@@ -42,15 +41,6 @@ class Consumer implements ConsumerInterface
 
     public function process(Message $message)
     {
-        if ($this->logger) {
-            $this->logger->debug('Processing message', [
-                'body' => $message->getBody(),
-                'headers' => $message->getHeaders(),
-                'exchange_name' => $message->getExchangeName(),
-                'routing_key' => $message->getRoutingKey()
-            ]);
-        }
-
         // Determine the queue from the message routing key (expects direct exchange)
         $queue = $this->queues->get($message->getRoutingKey());
 
