@@ -74,6 +74,6 @@ class LoggerMiddleware implements ConfigurableInterface, MiddlewareInterface
             'routing_key' => $message->getRoutingKey()
         ]);
 
-        $next($message, $queue);
+        return $next($message, $queue);
     }
 }

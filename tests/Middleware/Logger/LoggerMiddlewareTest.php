@@ -125,4 +125,28 @@ class LoggerMiddlewareTest extends PHPUnit_Framework_TestCase
 
         self::assertEquals(['log()', 'next()'], $trace);
     }
+
+    /**
+     * @dataProvider booleanProvider
+     * @param bool $boolean
+     */
+    public function testInvokeReturnsTheResultFromNextMiddleware($boolean)
+    {
+        $next = function () use ($boolean) {
+            return $boolean;
+        };
+
+        self::assertSame($boolean, $this->middleware->__invoke($this->message, $this->queue, $next));
+    }
+
+    /**
+     * @return array
+     */
+    public function booleanProvider()
+    {
+        return [
+            [true],
+            [false]
+        ];
+    }
 }
