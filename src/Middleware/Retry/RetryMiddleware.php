@@ -60,7 +60,7 @@ class RetryMiddleware implements MiddlewareInterface, ConfigurableInterface
     {
         try {
             return $next($message, $queue);
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             $options = $this->getMessageOptions($message);
             $attempts = (int) $message->getHeader('retry_attempts', 0);
 

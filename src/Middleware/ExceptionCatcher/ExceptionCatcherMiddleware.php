@@ -20,7 +20,7 @@ class ExceptionCatcherMiddleware implements MiddlewareInterface
     {
         try {
             return $next($message, $queue);
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             if ($this->logger) {
                 $this->logger->critical(sprintf('Exception caught when processing message #%s from queue "%s"', $message->getDeliveryTag(), $queue->getName()), [
                     'middleware' => 'exception_catcher',
