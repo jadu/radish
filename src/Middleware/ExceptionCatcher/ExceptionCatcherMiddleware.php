@@ -6,6 +6,7 @@ use Psr\Log\LoggerInterface;
 use Radish\Broker\Message;
 use Radish\Broker\Queue;
 use Radish\Middleware\MiddlewareInterface;
+use Throwable;
 
 class ExceptionCatcherMiddleware implements MiddlewareInterface
 {
@@ -20,7 +21,7 @@ class ExceptionCatcherMiddleware implements MiddlewareInterface
     {
         try {
             return $next($message, $queue);
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             if ($this->logger) {
                 $this->logger->critical(sprintf('Exception caught when processing message #%s from queue "%s"', $message->getDeliveryTag(), $queue->getName()), [
                     'middleware' => 'exception_catcher',
