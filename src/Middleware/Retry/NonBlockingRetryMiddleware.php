@@ -11,6 +11,7 @@ use Radish\Broker\Queue;
 use Radish\Middleware\ConfigurableInterface;
 use Radish\Middleware\MiddlewareInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Throwable;
 
 /**
  * Based on RetryMiddleware, but prevents messages further down the queue with shorter expirations being blocked by
@@ -145,7 +146,7 @@ class NonBlockingRetryMiddleware implements MiddlewareInterface, ConfigurableInt
 
         try {
             return $next($message, $queue);
-        } catch (Exception $exception) {
+        } catch (Throwable $exception) {
             if ($attempts < $options['max_attempts']) {
                 // Increment the retry attempt counter
                 $message->setHeader('retry_attempts', ++$attempts);

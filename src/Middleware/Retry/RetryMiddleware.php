@@ -9,6 +9,7 @@ use Radish\Broker\Queue;
 use Radish\Middleware\ConfigurableInterface;
 use Radish\Middleware\MiddlewareInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Throwable;
 
 class RetryMiddleware implements MiddlewareInterface, ConfigurableInterface
 {
@@ -60,7 +61,7 @@ class RetryMiddleware implements MiddlewareInterface, ConfigurableInterface
     {
         try {
             return $next($message, $queue);
-        } catch (\Exception $exception) {
+        } catch (Throwable $exception) {
             $options = $this->getMessageOptions($message);
             $attempts = (int) $message->getHeader('retry_attempts', 0);
 

@@ -29,7 +29,7 @@ class AckMiddleware implements MiddlewareInterface
             }
 
             return $return;
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             $queue->nack($message, false);
 
             if ($this->logger) {
