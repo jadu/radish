@@ -19,12 +19,22 @@ class ObjectManagerMiddleware implements MiddlewareInterface
      */
     private $logger;
 
+    /**
+     * @param ManagerRegistry $managerRegistry
+     * @param LoggerInterface $logger
+     */
     public function __construct(ManagerRegistry $managerRegistry, LoggerInterface $logger)
     {
         $this->logger = $logger;
         $this->managerRegistry = $managerRegistry;
     }
 
+    /**
+     * @param Message $message
+     * @param Queue $queue
+     * @param callable $next
+     * @return mixed
+     */
     public function __invoke(Message $message, Queue $queue, callable $next)
     {
         $return = $next($message, $queue);
