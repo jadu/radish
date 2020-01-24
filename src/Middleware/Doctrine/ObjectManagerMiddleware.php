@@ -52,15 +52,6 @@ class ObjectManagerMiddleware implements MiddlewareInterface
                 );
                 $this->managerRegistry->resetManager($managerName);
             } else {
-                $this->logger->info(
-                    sprintf('Clearing ObjectManager "%s"', $managerName),
-                    [
-                        'object_manager_name' => $managerName,
-                        'object_manager_class' => get_class($manager),
-                        'routing_key' => $message->getRoutingKey(),
-                        'queue' => $queue->getName()
-                    ]
-                );
                 $manager->clear();
             }
         }
