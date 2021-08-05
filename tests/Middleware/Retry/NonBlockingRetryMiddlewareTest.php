@@ -3,14 +3,17 @@
 namespace Radish\Middleware\Retry;
 
 use Mockery;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 use Mockery\Mock;
 use Psr\Log\LoggerInterface;
+use Radish\Broker\Exchange;
 use Radish\Broker\ExchangeInterface;
 use Radish\Broker\ExchangeRegistry;
 use Radish\Broker\Message;
+use Radish\Broker\Queue;
 use RuntimeException;
 
-class NonBlockingRetryMiddlewareTest extends \PHPUnit_Framework_TestCase
+class NonBlockingRetryMiddlewareTest extends MockeryTestCase
 {
     /**
      * @var Mock|ExchangeInterface
@@ -29,15 +32,15 @@ class NonBlockingRetryMiddlewareTest extends \PHPUnit_Framework_TestCase
      */
     private $logger;
 
-    public function setUp()
+    public function setUp(): void
     {
-        $this->exchange = Mockery::mock('Radish\Broker\Exchange', [
+        $this->exchange = Mockery::mock(Exchange::class, [
             'publish' => null,
         ]);
-        $this->exchangeRegistry = Mockery::mock('Radish\Broker\ExchangeRegistry', [
+        $this->exchangeRegistry = Mockery::mock(ExchangeRegistry::class, [
             'get' => $this->exchange,
         ]);
-        $this->logger = Mockery::mock('Psr\Log\LoggerInterface', [
+        $this->logger = Mockery::mock(LoggerInterface::class, [
             'info' => null,
             'critical' => null,
         ]);
@@ -51,14 +54,14 @@ class NonBlockingRetryMiddlewareTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider returnProvider
      */
-    public function testWhenNoExceptions($return)
+    public function testWhenNoExceptions($return): void
     {
-        $message = Mockery::mock('Radish\Broker\Message');
+        $message = Mockery::mock(Message::class);
         $message->shouldReceive('getHeader')
             ->andReturnUsing(function ($name, $default) {
                 return $default;
             });
-        $queue = Mockery::mock('Radish\Broker\Queue');
+        $queue = Mockery::mock(Queue::class);
         $next = function () use ($return) {
             return $return;
         };
@@ -67,7 +70,7 @@ class NonBlockingRetryMiddlewareTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($return, $middleware($message, $queue, $next));
     }
 
-    public function returnProvider()
+    public function returnProvider(): array
     {
         return [
             [true],
@@ -75,7 +78,7 @@ class NonBlockingRetryMiddlewareTest extends \PHPUnit_Framework_TestCase
         ];
     }
 
-    public function testSetsRetryAtHeaderForMessagesAlreadyInRetryQueue()
+    public function testSetsRetryAtHeaderForMessagesAlreadyInRetryQueue(): void
     {
         $currentTimestamp = time();
         $message = new Message();
@@ -85,7 +88,7 @@ class NonBlockingRetryMiddlewareTest extends \PHPUnit_Framework_TestCase
         $message->setHeader('retry_options', [
             'max_attempts' => 5
         ]);
-        $queue = Mockery::mock('Radish\Broker\Queue');
+        $queue = Mockery::mock(Queue::class);
         $next = function () {
             return true;
         };
@@ -99,10 +102,7 @@ class NonBlockingRetryMiddlewareTest extends \PHPUnit_Framework_TestCase
         $this->assertGreaterThanOrEqual($currentTimestamp, $message->getHeader('retry_at'));
     }
 
-    /**
-     * @expectedException RuntimeException
-     */
-    public function testRepublishesMessageWithFixedExpiration()
+    public function testRepublishesMessageWithFixedExpiration(): void
     {
         $message = new Message();
         $message->setBody('body');
@@ -110,7 +110,7 @@ class NonBlockingRetryMiddlewareTest extends \PHPUnit_Framework_TestCase
         $message->setHeader('retry_options', [
             'max_attempts' => 5
         ]);
-        $queue = Mockery::mock('Radish\Broker\Queue');
+        $queue = Mockery::mock(Queue::class);
         $next = function () {
             throw new \RuntimeException();
         };
@@ -121,14 +121,12 @@ class NonBlockingRetryMiddlewareTest extends \PHPUnit_Framework_TestCase
                 return isset($attributes['expiration']) && $attributes['expiration'] === 60000;
             }))
             ->once();
+        $this->expectException(RuntimeException::class);
 
         $middleware($message, $queue, $next);
     }
 
-    /**
-     * @expectedException RuntimeException
-     */
-    public function testRepublishesMessageWithRetryHeader()
+    public function testRepublishesMessageWithRetryHeader(): void
     {
         $message = new Message();
         $message->setBody('body');
@@ -136,7 +134,7 @@ class NonBlockingRetryMiddlewareTest extends \PHPUnit_Framework_TestCase
         $message->setHeader('retry_options', [
             'max_attempts' => 5
         ]);
-        $queue = Mockery::mock('Radish\Broker\Queue');
+        $queue = Mockery::mock(Queue::class);
         $next = function () {
             throw new \RuntimeException();
         };
@@ -147,14 +145,12 @@ class NonBlockingRetryMiddlewareTest extends \PHPUnit_Framework_TestCase
                 return isset($attributes['headers']['retry_at']);
             }))
             ->once();
+        $this->expectException(RuntimeException::class);
 
         $middleware($message, $queue, $next);
     }
 
-    /**
-     * @expectedException RuntimeException
-     */
-    public function testRepublishesMessageWithIncreasedRetryInterval()
+    public function testRepublishesMessageWithIncreasedRetryInterval(): void
     {
         $currentTimestamp = time();
         $message = new Message();
@@ -165,7 +161,7 @@ class NonBlockingRetryMiddlewareTest extends \PHPUnit_Framework_TestCase
         $message->setHeader('retry_options', [
             'max_attempts' => 5
         ]);
-        $queue = Mockery::mock('Radish\Broker\Queue');
+        $queue = Mockery::mock(Queue::class);
         $next = function () {
             throw new \RuntimeException();
         };
@@ -177,11 +173,12 @@ class NonBlockingRetryMiddlewareTest extends \PHPUnit_Framework_TestCase
                     $attributes['headers']['retry_at'] <= $currentTimestamp + 421; //upper boundary of back-off calculation
             }))
             ->once();
+        $this->expectException(RuntimeException::class);
 
         $middleware($message, $queue, $next);
     }
 
-    public function testRepublishesMessageWithoutIncreasingRetryIntervalOrRetryCountIfNotReadyToBeProcessed()
+    public function testRepublishesMessageWithoutIncreasingRetryIntervalOrRetryCountIfNotReadyToBeProcessed(): void
     {
         $currentTimestamp = time();
         $message = new Message();
@@ -192,7 +189,7 @@ class NonBlockingRetryMiddlewareTest extends \PHPUnit_Framework_TestCase
         $message->setHeader('retry_options', [
             'max_attempts' => 5
         ]);
-        $queue = Mockery::mock('Radish\Broker\Queue');
+        $queue = Mockery::mock(Queue::class);
         $next = function () {
             throw new \RuntimeException();
         };
@@ -208,7 +205,7 @@ class NonBlockingRetryMiddlewareTest extends \PHPUnit_Framework_TestCase
         $middleware($message, $queue, $next);
     }
 
-    public function testRepublishesMessageWithoutLoggingIfNotReadyToBeProcessed()
+    public function testRepublishesMessageWithoutLoggingIfNotReadyToBeProcessed(): void
     {
         $currentTimestamp = time();
         $message = new Message();
@@ -219,7 +216,7 @@ class NonBlockingRetryMiddlewareTest extends \PHPUnit_Framework_TestCase
         $message->setHeader('retry_options', [
             'max_attempts' => 5
         ]);
-        $queue = Mockery::mock('Radish\Broker\Queue');
+        $queue = Mockery::mock(Queue::class);
         $next = function () {
             throw new \RuntimeException();
         };
@@ -230,10 +227,7 @@ class NonBlockingRetryMiddlewareTest extends \PHPUnit_Framework_TestCase
         $middleware($message, $queue, $next);
     }
 
-    /**
-     * @expectedException RuntimeException
-     */
-    public function testRemovesXDeathHeaderBeforeRepublishing()
+    public function testRemovesXDeathHeaderBeforeRepublishing(): void
     {
         $message = new Message();
         $message->setBody('body');
@@ -242,7 +236,7 @@ class NonBlockingRetryMiddlewareTest extends \PHPUnit_Framework_TestCase
             'max_attempts' => 5
         ]);
         $message->setHeader('x-death', []);
-        $queue = Mockery::mock('Radish\Broker\Queue');
+        $queue = Mockery::mock(Queue::class);
         $next = function () {
             throw new \RuntimeException();
         };
@@ -253,14 +247,12 @@ class NonBlockingRetryMiddlewareTest extends \PHPUnit_Framework_TestCase
                 return !isset($attributes['headers']['x-death']);
             }))
             ->once();
+        $this->expectException(RuntimeException::class);
 
         $middleware($message, $queue, $next);
     }
 
-    /**
-     * @expectedException RuntimeException
-     */
-    public function testSetsRetryAttemptHeader()
+    public function testSetsRetryAttemptHeader(): void
     {
         $message = new Message();
         $message->setBody('body');
@@ -269,7 +261,7 @@ class NonBlockingRetryMiddlewareTest extends \PHPUnit_Framework_TestCase
             'max_attempts' => 5
         ]);
         $message->setHeader('x-death', []);
-        $queue = Mockery::mock('Radish\Broker\Queue');
+        $queue = Mockery::mock(Queue::class);
         $next = function () {
             throw new \RuntimeException();
         };
@@ -280,11 +272,12 @@ class NonBlockingRetryMiddlewareTest extends \PHPUnit_Framework_TestCase
                 return isset($attributes['headers']['retry_attempts']) && $attributes['headers']['retry_attempts'] === 1;
             }))
             ->once();
+        $this->expectException(RuntimeException::class);
 
         $middleware($message, $queue, $next);
     }
 
-    public function retryAttemptsDataProvider()
+    public function retryAttemptsDataProvider(): array
     {
         // headers, shouldRepublish
         return [
@@ -298,15 +291,14 @@ class NonBlockingRetryMiddlewareTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider retryAttemptsDataProvider
-     * @expectedException RuntimeException
      */
-    public function testRetryLimitsAreRespected($headers, $shouldRepublish)
+    public function testRetryLimitsAreRespected($headers, $shouldRepublish): void
     {
         $message = new Message();
         $message->setBody('body');
         $message->setRoutingKey('key');
         $message->setHeaders($headers);
-        $queue = Mockery::mock('Radish\Broker\Queue');
+        $queue = Mockery::mock(Queue::class);
         $next = function () {
             throw new \RuntimeException();
         };
@@ -322,21 +314,19 @@ class NonBlockingRetryMiddlewareTest extends \PHPUnit_Framework_TestCase
             $this->exchange->shouldReceive('publish')
                 ->never();
         }
+        $this->expectException(RuntimeException::class);
 
         $middleware($message, $queue, $next);
     }
 
-    /**
-     * @expectedException RuntimeException
-     */
-    public function testCriticalErrorIsLoggedWhenRetryLimitReached()
+    public function testCriticalErrorIsLoggedWhenRetryLimitReached(): void
     {
         $message = new Message();
         $message->setBody('body');
         $message->setRoutingKey('key');
         $message->setHeader('retry_attempts', 5);
         $message->setHeader('retry_options', ['max_attempts' => 5]);
-        $queue = Mockery::mock('Radish\Broker\Queue');
+        $queue = Mockery::mock(Queue::class);
         $next = function () {
             throw new \RuntimeException();
         };
@@ -345,21 +335,19 @@ class NonBlockingRetryMiddlewareTest extends \PHPUnit_Framework_TestCase
         $this->logger->shouldReceive('critical')
             ->once()
             ->with('Failed to process message after 5 retries');
+        $this->expectException(RuntimeException::class);
 
         $middleware($message, $queue, $next);
     }
 
-    /**
-     * @expectedException RuntimeException
-     */
-    public function testInfoMessageIsLoggedWhenMessageRequeuedDueToRetryFailure()
+    public function testInfoMessageIsLoggedWhenMessageRequeuedDueToRetryFailure(): void
     {
         $message = new Message();
         $message->setBody('body');
         $message->setRoutingKey('key');
         $message->setHeader('retry_attempts', 4);
         $message->setHeader('retry_options', ['max_attempts' => 5]);
-        $queue = Mockery::mock('Radish\Broker\Queue');
+        $queue = Mockery::mock(Queue::class);
         $next = function () {
             throw new \RuntimeException();
         };
@@ -373,6 +361,7 @@ class NonBlockingRetryMiddlewareTest extends \PHPUnit_Framework_TestCase
                 }
 
             ));
+        $this->expectException(RuntimeException::class);
 
         $middleware($message, $queue, $next);
     }

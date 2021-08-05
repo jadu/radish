@@ -3,11 +3,14 @@
 namespace Radish\Consumer;
 
 use Mockery;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 use Mockery\Mock;
+use Radish\Broker\QueueCollection;
 use Radish\Broker\QueueLoader;
+use Radish\Middleware\MiddlewareInterface;
 use Radish\Middleware\MiddlewareLoader;
 
-class PollerFactoryTest extends \PHPUnit_Framework_TestCase
+class PollerFactoryTest extends MockeryTestCase
 {
     /**
      * @var Mock|QueueLoader
@@ -22,15 +25,15 @@ class PollerFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public $factory;
 
-    public function setUp()
+    public function setUp(): void
     {
-        $this->queueLoader = Mockery::mock('Radish\Broker\QueueLoader');
-        $this->middlewareLoader = Mockery::mock('Radish\Middleware\MiddlewareLoader');
+        $this->queueLoader = Mockery::mock(QueueLoader::class);
+        $this->middlewareLoader = Mockery::mock(MiddlewareLoader::class);
 
         $this->factory = new PollerFactory($this->queueLoader, $this->middlewareLoader);
     }
 
-    public function testCreate()
+    public function testCreate(): void
     {
         $queueNames = ['test_queue'];
         $middlewareOptions = ['options'];
@@ -38,15 +41,15 @@ class PollerFactoryTest extends \PHPUnit_Framework_TestCase
         $this->queueLoader->shouldReceive('load')
             ->with($queueNames)
             ->once()
-            ->andReturn(Mockery::mock('Radish\Broker\QueueCollection'));
+            ->andReturn(Mockery::mock(QueueCollection::class));
 
         $this->middlewareLoader->shouldReceive('load')
             ->with($middlewareOptions)
             ->once()
-            ->andReturn([Mockery::mock('Radish\Middleware\MiddlewareInterface')]);
+            ->andReturn([Mockery::mock(MiddlewareInterface::class)]);
 
         $consumer = $this->factory->create($queueNames, $middlewareOptions, [], 10);
 
-        $this->assertInstanceOf('Radish\Consumer\Poller', $consumer);
+        $this->assertInstanceOf(Poller::class, $consumer);
     }
 }

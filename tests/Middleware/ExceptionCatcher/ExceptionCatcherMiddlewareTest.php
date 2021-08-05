@@ -3,12 +3,15 @@
 namespace Radish\Middleware\ExceptionCatcher;
 
 use Mockery;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
+use Radish\Broker\Message;
+use Radish\Broker\Queue;
 
-class ExceptionCatcherMiddlewareTest extends \PHPUnit_Framework_TestCase
+class ExceptionCatcherMiddlewareTest extends MockeryTestCase
 {
     public $middleware;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->middleware = new ExceptionCatcherMiddleware();
     }
@@ -16,10 +19,10 @@ class ExceptionCatcherMiddlewareTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider returnProvider
      */
-    public function testWhenNoExceptions($return)
+    public function testWhenNoExceptions($return): void
     {
-        $message = Mockery::mock('Radish\Broker\Message');
-        $queue = Mockery::mock('Radish\Broker\Queue');
+        $message = Mockery::mock(Message::class);
+        $queue = Mockery::mock(Queue::class);
 
         $next = function () use ($return) {
             return $return;
@@ -29,7 +32,7 @@ class ExceptionCatcherMiddlewareTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($return, $middleware($message, $queue, $next));
     }
 
-    public function returnProvider()
+    public function returnProvider(): array
     {
         return [
             [true],
@@ -37,10 +40,10 @@ class ExceptionCatcherMiddlewareTest extends \PHPUnit_Framework_TestCase
         ];
     }
 
-    public function testCatchesExceptions()
+    public function testCatchesExceptions(): void
     {
-        $message = Mockery::mock('Radish\Broker\Message');
-        $queue = Mockery::mock('Radish\Broker\Queue');
+        $message = Mockery::mock(Message::class);
+        $queue = Mockery::mock(Queue::class);
 
         $next = function () {
             throw new \RuntimeException();

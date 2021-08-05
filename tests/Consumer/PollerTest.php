@@ -3,13 +3,14 @@
 namespace Radish\Consumer;
 
 use Mockery;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 use Mockery\Mock;
 use PHPUnit_Framework_TestCase;
 use Radish\Broker\Message;
 use Radish\Broker\Queue;
 use Radish\Broker\QueueCollection;
 
-class PollerTest extends PHPUnit_Framework_TestCase
+class PollerTest extends MockeryTestCase
 {
     /**
      * @var Mock|QueueCollection
@@ -24,22 +25,22 @@ class PollerTest extends PHPUnit_Framework_TestCase
      */
     private $queue;
 
-    public function setUp()
+    public function setUp(): void
     {
-        $this->message = Mockery::mock('Radish\Broker\Message', [
+        $this->message = Mockery::mock(Message::class, [
             'getRoutingKey' => 'abc'
         ]);
-        $this->queue = Mockery::mock('Radish\Broker\Queue', [
+        $this->queue = Mockery::mock(Queue::class, [
             'getName' => 'abc'
         ]);
-        $this->queues = Mockery::mock('Radish\Broker\QueueCollection', [
+        $this->queues = Mockery::mock(QueueCollection::class, [
             'consume' => null,
             'pop' => $this->message,
             'get' => $this->queue,
         ]);
     }
 
-    public function testConsume()
+    public function testConsume(): void
     {
         $this->queues->shouldReceive('pop')
             ->andReturn(

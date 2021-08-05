@@ -3,10 +3,11 @@
 namespace Radish\Broker;
 
 use Mockery;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 use Mockery\Mock;
 use PHPUnit_Framework_TestCase;
 
-class QueueCollectionTest extends PHPUnit_Framework_TestCase
+class QueueCollectionTest extends MockeryTestCase
 {
     /**
      * @var QueueCollection
@@ -21,43 +22,43 @@ class QueueCollectionTest extends PHPUnit_Framework_TestCase
      */
     private $queue2;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->collection = new QueueCollection();
-        $this->queue1 = Mockery::mock('Radish\Broker\Queue', [
+        $this->queue1 = Mockery::mock(Queue::class, [
             'getName' => 'a',
-            'pop' => Mockery::mock('Radish\Broker\Message')
+            'pop' => Mockery::mock(Message::class)
         ]);
-        $this->queue2 = Mockery::mock('Radish\Broker\Queue', [
+        $this->queue2 = Mockery::mock(Queue::class, [
             'getName' => 'b',
-            'pop' => Mockery::mock('Radish\Broker\Message')
+            'pop' => Mockery::mock(Message::class)
         ]);
     }
 
-    public function testPopReturnsMessage()
+    public function testPopReturnsMessage(): void
     {
         $this->collection->add($this->queue1);
         $this->collection->add($this->queue2);
 
         $this->queue1->shouldReceive('pop')
             ->once()
-            ->andReturn(Mockery::mock('Radish\Broker\Message'));
+            ->andReturn(Mockery::mock(Message::class));
 
         $this->queue2->shouldReceive('pop')
             ->never();
 
         $message = $this->collection->pop();
 
-        static::assertInstanceOf('Radish\Broker\Message', $message);
+        static::assertInstanceOf(Message::class, $message);
     }
 
-    public function testPopPopsEachQueueInOrder()
+    public function testPopPopsEachQueueInOrder(): void
     {
         $this->collection->add($this->queue1);
         $this->collection->add($this->queue2);
 
-        $message1 = Mockery::mock('Radish\Broker\Message');
-        $message2 = Mockery::mock('Radish\Broker\Message');
+        $message1 = Mockery::mock(Message::class);
+        $message2 = Mockery::mock(Message::class);
 
         $this->queue1->shouldReceive('pop')
             ->once()
@@ -71,11 +72,11 @@ class QueueCollectionTest extends PHPUnit_Framework_TestCase
         static::assertSame($message2, $this->collection->pop());
     }
 
-    public function testPopReturnsNullWhenNoMoreMessages()
+    public function testPopReturnsNullWhenNoMoreMessages(): void
     {
         $this->collection->add($this->queue1);
 
-        $message1 = Mockery::mock('Radish\Broker\Message');
+        $message1 = Mockery::mock(Message::class);
 
         $this->queue1->shouldReceive('pop')
             ->once()

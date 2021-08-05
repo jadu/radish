@@ -3,6 +3,7 @@
 namespace Radish\Middleware\Logger;
 
 use Mockery;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 use Mockery\Mock;
 use PHPUnit_Framework_TestCase;
 use Psr\Log\LoggerInterface;
@@ -11,7 +12,7 @@ use Radish\Broker\Message;
 use Radish\Broker\Queue;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class LoggerMiddlewareTest extends PHPUnit_Framework_TestCase
+class LoggerMiddlewareTest extends MockeryTestCase
 {
     /**
      * @var Mock|LoggerInterface
@@ -34,19 +35,19 @@ class LoggerMiddlewareTest extends PHPUnit_Framework_TestCase
      */
     private $queue;
 
-    public function setUp()
+    public function setUp(): void
     {
-        $this->logger = Mockery::mock('Psr\Log\LoggerInterface', [
+        $this->logger = Mockery::mock(LoggerInterface::class, [
             'log' => null,
         ]);
-        $this->message = Mockery::mock('Radish\Broker\Message', [
+        $this->message = Mockery::mock(Message::class, [
             'getBody' => 'my message content',
             'getExchangeName' => 'my_exchange',
             'getHeaders' => ['x-header-one' => '1', 'x-header-two' => '2'],
             'getRoutingKey' => 'my.routing.key',
         ]);
         $this->optionsResolver = new OptionsResolver();
-        $this->queue = Mockery::mock('Radish\Broker\Queue', [
+        $this->queue = Mockery::mock(Queue::class, [
             'getName' => 'test',
             'ack' => null,
             'nack' => null,
@@ -55,7 +56,7 @@ class LoggerMiddlewareTest extends PHPUnit_Framework_TestCase
         $this->middleware = new LoggerMiddleware($this->logger);
     }
 
-    public function testInvokeWithDefaultOptionsLogsCorrectly()
+    public function testInvokeWithDefaultOptionsLogsCorrectly(): void
     {
         $next = function () {
             return true;
@@ -75,7 +76,7 @@ class LoggerMiddlewareTest extends PHPUnit_Framework_TestCase
         $this->middleware->__invoke($this->message, $this->queue, $next);
     }
 
-    public function testInvokeWithCustomOptionsLogsCorrectly()
+    public function testInvokeWithCustomOptionsLogsCorrectly(): void
     {
         $next = function () {
             return true;
@@ -98,7 +99,7 @@ class LoggerMiddlewareTest extends PHPUnit_Framework_TestCase
         $this->middleware->__invoke($this->message, $this->queue, $next);
     }
 
-    public function testInvokePassesCorrectArgsToNext()
+    public function testInvokePassesCorrectArgsToNext(): void
     {
         $this->logger->shouldReceive('log');
 
@@ -110,7 +111,7 @@ class LoggerMiddlewareTest extends PHPUnit_Framework_TestCase
         $this->middleware->__invoke($this->message, $this->queue, $next);
     }
 
-    public function testInvokeCallsTheMiddlewareAfterLogging()
+    public function testInvokeCallsTheMiddlewareAfterLogging(): void
     {
         $trace = [];
         $next = function () use (&$trace) {

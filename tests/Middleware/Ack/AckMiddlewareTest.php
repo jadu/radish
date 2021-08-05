@@ -3,29 +3,33 @@
 namespace Radish\Middleware\Ack;
 
 use Mockery;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
+use Psr\Log\LoggerInterface;
+use Radish\Broker\Message;
+use Radish\Broker\Queue;
 use RuntimeException;
 
-class AckMiddlewareTest extends \PHPUnit_Framework_TestCase
+class AckMiddlewareTest extends MockeryTestCase
 {
     public $logger;
     public $middleware;
     public $message;
     public $queue;
 
-    public function setUp()
+    public function setUp(): void
     {
-        $this->logger = Mockery::mock('Psr\Log\LoggerInterface', [
+        $this->logger = Mockery::mock(LoggerInterface::class, [
             'info' => null,
             'warning' => null,
         ]);
 
         $this->middleware = new AckMiddleware();
 
-        $this->message = Mockery::mock('Radish\Broker\Message', [
+        $this->message = Mockery::mock(Message::class, [
             'getDeliveryTag' => '1'
         ]);
 
-        $this->queue = Mockery::mock('Radish\Broker\Queue', [
+        $this->queue = Mockery::mock(Queue::class, [
             'getName' => 'test',
             'ack' => null,
             'nack' => null,
@@ -35,7 +39,7 @@ class AckMiddlewareTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider returnProvider
      */
-    public function testAckWhenNoExceptions($return)
+    public function testAckWhenNoExceptions($return): void
     {
         $this->queue->shouldReceive('ack')->with($this->message)->once();
 
@@ -47,7 +51,7 @@ class AckMiddlewareTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($return, $middleware($this->message, $this->queue, $next));
     }
 
-    public function returnProvider()
+    public function returnProvider(): array
     {
         return [
             [true],
@@ -55,7 +59,7 @@ class AckMiddlewareTest extends \PHPUnit_Framework_TestCase
         ];
     }
 
-    public function testAckWhenNoExceptionsLogsInfo()
+    public function testAckWhenNoExceptionsLogsInfo(): void
     {
         $this->logger->shouldReceive('info')
             ->with('Message #1 from queue "test" has been acknowledged', [
@@ -71,25 +75,20 @@ class AckMiddlewareTest extends \PHPUnit_Framework_TestCase
         $middleware($this->message, $this->queue, $next);
     }
 
-    /**
-     * @expectedException RuntimeException
-     */
-    public function testNackWhenExceptionCaught()
+    public function testNackWhenExceptionCaught(): void
     {
-        $this->queue->shouldReceive('nack')->with($this->message, false)->once();
-
         $next = function () {
             throw new RuntimeException();
         };
+
+        $this->queue->shouldReceive('nack')->with($this->message, false)->once();
+        $this->expectException(RuntimeException::class);
 
         $middleware = $this->middleware;
         $middleware($this->message, $this->queue, $next);
     }
 
-    /**
-     * @expectedException RuntimeException
-     */
-    public function testNackWhenExceptionCaughtLogsException()
+    public function testNackWhenExceptionCaughtLogsException(): void
     {
         $exception = new RuntimeException();
 
@@ -99,6 +98,7 @@ class AckMiddlewareTest extends \PHPUnit_Framework_TestCase
                 'exception' => $exception,
             ])
             ->once();
+        $this->expectException(RuntimeException::class);
 
         $next = function () use ($exception) {
             throw $exception;

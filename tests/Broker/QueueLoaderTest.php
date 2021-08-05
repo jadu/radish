@@ -3,10 +3,10 @@
 namespace Radish\Broker;
 
 use Mockery;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 use Mockery\Mock;
-use PHPUnit_Framework_TestCase;
 
-class QueueLoaderTest extends PHPUnit_Framework_TestCase
+class QueueLoaderTest extends MockeryTestCase
 {
     /**
      * @var Mock|QueueRegistry
@@ -17,39 +17,39 @@ class QueueLoaderTest extends PHPUnit_Framework_TestCase
      */
     private $loader;
 
-    public function setUp()
+    public function setUp(): void
     {
-        $this->queueRegistry = Mockery::mock('Radish\Broker\QueueRegistry', [
-            'get' => Mockery::mock('Radish\Broker\Queue', [
+        $this->queueRegistry = Mockery::mock(QueueRegistry::class, [
+            'get' => Mockery::mock(Queue::class, [
                 'getName' => 'a',
             ]),
         ]);
         $this->loader = new QueueLoader($this->queueRegistry);
     }
 
-    public function testLoadGetsEachQueueFromRegistry()
+    public function testLoadGetsEachQueueFromRegistry(): void
     {
         $this->queueRegistry->shouldReceive('get')
             ->with('a')
             ->times(1)
-            ->andReturn(Mockery::mock('Radish\Broker\Queue', [
+            ->andReturn(Mockery::mock(Queue::class, [
                 'getName' => 'a',
             ]));
 
         $this->queueRegistry->shouldReceive('get')
             ->with('b')
             ->times(1)
-            ->andReturn(Mockery::mock('Radish\Broker\Queue', [
+            ->andReturn(Mockery::mock(Queue::class, [
                 'getName' => 'a',
             ]));
 
         $this->loader->load(['a', 'b']);
     }
 
-    public function testLoadReturnsQueueCollection()
+    public function testLoadReturnsQueueCollection(): void
     {
         $collection = $this->loader->load(['a']);
 
-        static::assertInstanceOf('Radish\Broker\QueueCollection', $collection);
+        static::assertInstanceOf(QueueCollection::class, $collection);
     }
 }

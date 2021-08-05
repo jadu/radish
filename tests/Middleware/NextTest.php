@@ -3,13 +3,16 @@
 namespace Radish\Middleware;
 
 use Mockery;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
+use Radish\Broker\Message;
+use Radish\Broker\Queue;
 
-class NextTest extends \PHPUnit_Framework_TestCase
+class NextTest extends MockeryTestCase
 {
-    public function testCallsWorkerWhenNoMiddleware()
+    public function testCallsWorkerWhenNoMiddleware(): void
     {
-        $message = Mockery::mock('Radish\Broker\Message');
-        $queue = Mockery::mock('Radish\Broker\Queue');
+        $message = Mockery::mock(Message::class);
+        $queue = Mockery::mock(Queue::class);
 
         $workerCalled = false;
         $worker = function () use (&$workerCalled) {
@@ -22,10 +25,10 @@ class NextTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($workerCalled);
     }
 
-    public function testCallsMiddlewareInOrder()
+    public function testCallsMiddlewareInOrder(): void
     {
-        $message = Mockery::mock('Radish\Broker\Message');
-        $queue = Mockery::mock('Radish\Broker\Queue');
+        $message = Mockery::mock(Message::class);
+        $queue = Mockery::mock(Queue::class);
 
         $callees = [];
 
