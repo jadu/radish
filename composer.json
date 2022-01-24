@@ -11,7 +11,7 @@
         }
     ],
     "require": {
-        "doctrine/orm": "2.6.*",
+        "doctrine/orm": "^2.6|^2.7",
         "php": ">=7.1.0",
         "psr/log": "~1.0",
         "symfony/options-resolver": "~2.6|~3.0"
