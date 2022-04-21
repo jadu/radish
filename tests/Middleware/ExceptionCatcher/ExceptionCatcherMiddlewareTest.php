@@ -51,5 +51,7 @@ class ExceptionCatcherMiddlewareTest extends MockeryTestCase
 
         $middleware = $this->middleware;
         $middleware($message, $queue, $next);
+
+        static::addToAssertionCount(1);
     }
 }

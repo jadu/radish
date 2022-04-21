@@ -10,6 +10,7 @@ use Doctrine\ORM\Events;
 use Doctrine\ORM\Internal\Hydration\AbstractHydrator;
 use Doctrine\Persistence\ObjectManager;
 use Mockery;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 use Mockery\MockInterface;
 use Psr\Log\LoggerInterface;
 use Radish\Broker\Message;
@@ -20,7 +21,7 @@ use Radish\Broker\Queue;
  *
  * @author Jadu Ltd.
  */
-class ObjectManagerMiddlewareTest extends \PHPUnit_Framework_TestCase
+class ObjectManagerMiddlewareTest extends MockeryTestCase
 {
     public $callable;
     /**
@@ -204,7 +205,7 @@ class ObjectManagerMiddlewareTest extends \PHPUnit_Framework_TestCase
     /**
      * @return array
      */
-    private function returnProvider(): array
+    public function returnProvider(): array
     {
         return [
             [true],
