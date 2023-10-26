@@ -25,6 +25,8 @@ jobs:
         with:
           php_version: ${{ matrix.php-version }}
           php_extensions: amqp
+      - name: Check amqp version
+      - run: php --ri amqp | grep Version
       - name: PHPUnit tests
         uses: php-actions/phpunit@v3
         with:
