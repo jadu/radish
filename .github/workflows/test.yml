@@ -30,6 +30,6 @@ jobs:
       - name: PHPUnit tests
         uses: php-actions/phpunit@v3
         with:
-          version: 9.6
+          version: 8.5
           php_version: ${{ matrix.php-version }}
           php_extensions: "amqp"
