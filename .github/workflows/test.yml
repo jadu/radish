@@ -20,12 +20,14 @@ jobs:
           - '8.2'
 
     steps:
-      - uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ matrix.php-version }}
-          extensions: amqp
       - uses: actions/checkout@v3
-      - name: Install Dependencies
-        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-      - name: Execute tests (Unit and Feature tests) via PHPUnit
-        run: vendor/bin/phpunit
+      - uses: php-actions/composer@v6
+        with:
+          php_version: ${{ matrix.php-version }}
+          php_extensions: amqp
+      - name: PHPUnit tests
+        uses: php-actions/phpunit@v3
+        with:
+          version: 8.5
+          php_version: ${{ matrix.php-version }}
+          php_extensions: "amqp"
