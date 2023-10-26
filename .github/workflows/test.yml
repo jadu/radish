@@ -1,12 +1,6 @@
 name: Test
 
-on:
-  push:
-    branches:
-      - "*"
-  pull_request:
-    branches:
-      - "*"
+on: [push]
 
 permissions:
   contents: read
@@ -27,7 +21,11 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
-      - name: Install Dependencies
-        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-      - name: Execute tests via PHPUnit
-        run: vendor/bin/phpunit
+      - uses: actions/checkout@v3
+      - uses: php-actions/composer@v6
+      - name: PHPUnit tests
+        uses: php-actions/phpunit@v3
+        with:
+          version: 9.6
+          php_version: ${{ matrix.php-version }}
+          php_extensions: "amqp"
