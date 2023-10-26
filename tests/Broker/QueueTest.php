@@ -26,7 +26,7 @@ class QueueTest extends MockeryTestCase
     public function setUp(): void
     {
         $this->amqpQueue = Mockery::mock('AMQPQueue', [
-            'declareQueue' => null,
+            'declareQueue' => 0,
             'setName' => null,
             'setFlags' => null,
         ]);
@@ -62,7 +62,7 @@ class QueueTest extends MockeryTestCase
     public function testPopReturnsNullWhenNoMessages()
     {
         $this->amqpQueue->shouldReceive('get')
-            ->andReturn(false)
+            ->andReturn(null)
             ->once();
 
         static::assertNull($this->queue->pop());
