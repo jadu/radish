@@ -21,6 +21,7 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
+          extensions: amqp
       - uses: actions/checkout@v3
       - uses: php-actions/composer@v6
       - name: PHPUnit tests
