@@ -35,3 +35,4 @@ jobs:
           version: 8.5
           php_version: ${{ matrix.php-version }}
           php_extensions: "amqp"
+          args: --coverage-text
