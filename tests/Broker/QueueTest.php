@@ -77,7 +77,7 @@ class QueueTest extends MockeryTestCase
                 'getContentEncoding' => 'content-encoding',
                 'getContentType' => 'content-type',
                 'getDeliveryMode' => 1,
-                'getDeliveryTag' => 'delivery-tag',
+                'getDeliveryTag' => 1,
                 'getExchangeName' => 'exchange-name',
                 'getExpiration' => 'expiration',
                 'getHeaders' => [],
