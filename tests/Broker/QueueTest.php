@@ -82,7 +82,7 @@ class QueueTest extends MockeryTestCase
                 'getExpiration' => 'expiration',
                 'getHeaders' => [],
                 'getMessageId' => 'message-id',
-                'getPriority' => 'priority',
+                'getPriority' => 1,
                 'isRedelivery' => false,
                 'getReplyTo' => 'reply-to',
                 'getRoutingKey' => 'routing-key',
