@@ -86,7 +86,7 @@ class QueueTest extends MockeryTestCase
                 'isRedelivery' => false,
                 'getReplyTo' => 'reply-to',
                 'getRoutingKey' => 'routing-key',
-                'getTimestamp' => 'timestamp',
+                'getTimestamp' => null,
                 'getType' => 'type',
                 'getUserId' => 'user-id',
             ]))
