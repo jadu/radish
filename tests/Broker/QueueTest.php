@@ -71,7 +71,25 @@ class QueueTest extends MockeryTestCase
     public function testPopReturnsMessageWhenMessageInQueue(): void
     {
         $this->amqpQueue->shouldReceive('get')
-            ->andReturn(Mockery::mock(new AMQPEnvelope()))
+            ->andReturn(Mockery::mock(AMQPEnvelope::class, [
+                'getAppId' => 'app-id',
+                'getBody' => 'body',
+                'getContentEncoding' => 'content-encoding',
+                'getContentType' => 'content-type',
+                'getDeliveryMode' => 1,
+                'getDeliveryTag' => 'delivery-tag',
+                'getExchangeName' => 'exchange-name',
+                'getExpiration' => 'expiration',
+                'getHeaders' => [],
+                'getMessageId' => 'message-id',
+                'getPriority' => 'priority',
+                'isRedelivery' => false,
+                'getReplyTo' => 'reply-to',
+                'getRoutingKey' => 'routing-key',
+                'getTimestamp' => 'timestamp',
+                'getType' => 'type',
+                'getUserId' => 'user-id',
+            ]))
             ->once();
 
         $message = $this->queue->pop();
