@@ -3,8 +3,9 @@
 namespace Radish\Broker;
 
 use Mockery;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 
-class ConnectionTest extends \PHPUnit_Framework_TestCase
+class ConnectionTest extends MockeryTestCase
 {
     public $amqpConnection;
     public $amqpChannel;
@@ -14,7 +15,7 @@ class ConnectionTest extends \PHPUnit_Framework_TestCase
     public $credentials;
     public $connection;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->amqpConnection = Mockery::mock('AMQPConnection', [
             'connect' => null
@@ -24,7 +25,7 @@ class ConnectionTest extends \PHPUnit_Framework_TestCase
         $this->amqpExchange = Mockery::mock('AMQPExchange');
         $this->amqpQueue = Mockery::mock('AMQPQueue');
 
-        $this->amqpFactory = Mockery::mock('Radish\Broker\AMQPFactory', [
+        $this->amqpFactory = Mockery::mock(AMQPFactory::class, [
             'createConnection' => $this->amqpConnection,
             'createChannel' => $this->amqpChannel,
             'createExchange' => $this->amqpExchange,
@@ -38,7 +39,7 @@ class ConnectionTest extends \PHPUnit_Framework_TestCase
         $this->connection = new Connection($this->amqpFactory, $this->credentials);
     }
 
-    public function testConnect()
+    public function testConnect(): void
     {
         $this->amqpFactory->shouldReceive('createConnection')
             ->with($this->credentials)
@@ -51,7 +52,7 @@ class ConnectionTest extends \PHPUnit_Framework_TestCase
         $this->connection->connect();
     }
 
-    public function testDeconstructDisconnects()
+    public function testDeconstructDisconnects(): void
     {
         $this->amqpConnection->shouldReceive('disconnect')->once();
 
@@ -59,19 +60,19 @@ class ConnectionTest extends \PHPUnit_Framework_TestCase
         $this->connection->__deconstruct();
     }
 
-    public function testIsConnectedWhenConnected()
+    public function testIsConnectedWhenConnected(): void
     {
         $this->connection->connect();
 
         $this->assertTrue($this->connection->isConnected());
     }
 
-    public function testIsConnectedWhenNotConnected()
+    public function testIsConnectedWhenNotConnected(): void
     {
         $this->assertFalse($this->connection->isConnected());
     }
 
-    public function testGetChannel()
+    public function testGetChannel(): void
     {
         $this->amqpFactory->shouldReceive('createChannel')
             ->with($this->amqpConnection)
@@ -82,7 +83,7 @@ class ConnectionTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->connection->isConnected());
     }
 
-    public function testCreateExchange()
+    public function testCreateExchange(): void
     {
         $this->amqpFactory->shouldReceive('createExchange')
             ->with($this->amqpChannel)
@@ -92,7 +93,7 @@ class ConnectionTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($this->amqpExchange, $this->connection->createExchange());
     }
 
-    public function testCreateQueue()
+    public function testCreateQueue(): void
     {
         $this->amqpFactory->shouldReceive('createQueue')
             ->with($this->amqpChannel)

@@ -3,19 +3,20 @@
 namespace Radish\Broker;
 
 use Mockery;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 
-class ExchangeTest extends \PHPUnit_Framework_TestCase
+class ExchangeTest extends MockeryTestCase
 {
     public $connection;
     public $exchange;
 
-    public function setUp()
+    public function setUp(): void
     {
-        $this->connection = Mockery::mock('Radish\Broker\Connection');
+        $this->connection = Mockery::mock(Connection::class);
         $this->exchange = new Exchange($this->connection, 'test_exchange', 'direct', true);
     }
 
-    public function testDeclareExchange()
+    public function testDeclareExchange(): void
     {
         $amqpExchange = Mockery::mock('AMQPExchange');
 
@@ -40,7 +41,7 @@ class ExchangeTest extends \PHPUnit_Framework_TestCase
         $this->exchange->declareExchange();
     }
 
-    public function testPublish()
+    public function testPublish(): void
     {
         $amqpExchange = Mockery::mock('AMQPExchange');
 
@@ -67,7 +68,7 @@ class ExchangeTest extends \PHPUnit_Framework_TestCase
         $this->exchange->publish('body', 'routing_key', 1, []);
     }
 
-    public function testPublishReusesSameExchangeInstance()
+    public function testPublishReusesSameExchangeInstance(): void
     {
         $amqpExchange = Mockery::mock('AMQPExchange', [
             'setName' => null,

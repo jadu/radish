@@ -3,20 +3,22 @@
 namespace Radish\Producer;
 
 use Mockery;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
+use Radish\Broker\Exchange;
 use Radish\Broker\Message;
 
-class ProducerTest extends \PHPUnit_Framework_TestCase
+class ProducerTest extends MockeryTestCase
 {
     public $exchange;
     public $producer;
 
-    public function setUp()
+    public function setUp(): void
     {
-        $this->exchange = Mockery::mock('Radish\Broker\Exchange');
+        $this->exchange = Mockery::mock(Exchange::class);
         $this->producer = new Producer($this->exchange);
     }
 
-    public function testPublish()
+    public function testPublish(): void
     {
         $message = new Message();
         $message->setBody('test');

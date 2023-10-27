@@ -3,12 +3,13 @@
 namespace Radish\Producer;
 
 use Mockery;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 
-class BlackHoleProducerFactoryTest extends \PHPUnit_Framework_TestCase
+class BlackHoleProducerFactoryTest extends MockeryTestCase
 {
-    public function testCreate()
+    public function testCreate(): void
     {
         $factory = new BlackHoleProducerFactory();
-        $this->assertInstanceOf('Radish\Producer\BlackHoleProducer', $factory->create('test'));
+        $this->assertInstanceOf(BlackHoleProducer::class, $factory->create('test'));
     }
 }

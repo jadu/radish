@@ -2,7 +2,7 @@
 
 namespace Radish\Middleware\Doctrine;
 
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Events;
 use Doctrine\ORM\Internal\Hydration\AbstractHydrator;
@@ -14,7 +14,7 @@ use Radish\Middleware\MiddlewareInterface;
 class ObjectManagerMiddleware implements MiddlewareInterface
 {
     /**
-     * @var ManagerRegistry
+     * @var Registry
      */
     protected $managerRegistry;
     /**
@@ -23,10 +23,10 @@ class ObjectManagerMiddleware implements MiddlewareInterface
     private $logger;
 
     /**
-     * @param ManagerRegistry $managerRegistry
+     * @param Registry $managerRegistry
      * @param LoggerInterface $logger
      */
-    public function __construct(ManagerRegistry $managerRegistry, LoggerInterface $logger)
+    public function __construct(Registry $managerRegistry, LoggerInterface $logger)
     {
         $this->logger = $logger;
         $this->managerRegistry = $managerRegistry;

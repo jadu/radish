@@ -25,7 +25,7 @@ class Queue implements QueueInterface
      */
     protected $maxPriority;
 
-    public function __construct(Connection $connection, $name, $durable = true, array $bindings)
+    public function __construct(Connection $connection, $name, $durable = true, array $bindings = [])
     {
         $this->connection = $connection;
         $this->name = $name;

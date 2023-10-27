@@ -3,21 +3,23 @@
 namespace Radish\Middleware;
 
 use Mockery;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
+use RuntimeException;
 
-class MiddlewareRegistryTest extends \PHPUnit_Framework_TestCase
+class MiddlewareRegistryTest extends MockeryTestCase
 {
     public $container;
     public $registry;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->container = Mockery::mock('Symfony\Component\DependencyInjection\ContainerInterface');
         $this->registry = new MiddlewareRegistry($this->container);
     }
 
-    public function testGet()
+    public function testGet(): void
     {
-        $middleware = Mockery::mock('Radish\Middleware\MiddlewareInterface');
+        $middleware = Mockery::mock(MiddlewareInterface::class);
 
         $this->container->shouldReceive('has')
             ->with('service_name')
@@ -32,25 +34,22 @@ class MiddlewareRegistryTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($middleware, $this->registry->get('middleware_name'));
     }
 
-    /**
-     * @expectedException RuntimeException
-     */
-    public function testGetThrowsExceptionWhenMiddlewareNotRegistered()
+    public function testGetThrowsExceptionWhenMiddlewareNotRegistered(): void
     {
-        $middleware = Mockery::mock('Radish\Middleware\MiddlewareInterface');
+        $middleware = Mockery::mock(MiddlewareInterface::class);
+
+        $this->expectException(RuntimeException::class);
 
         $this->assertSame($middleware, $this->registry->get('middleware_name'));
     }
 
-    /**
-     * @expectedException RuntimeException
-     */
-    public function testGetThrowsExceptionWhenMiddlewareServiceNotDefined()
+    public function testGetThrowsExceptionWhenMiddlewareServiceNotDefined(): void
     {
-        $middleware = Mockery::mock('Radish\Middleware\MiddlewareInterface');
+        $middleware = Mockery::mock(MiddlewareInterface::class);
 
         $this->container->shouldReceive('has')
             ->andReturn(false);
+        $this->expectException(RuntimeException::class);
 
         $this->registry->register('middleware_name', 'service_name');
 

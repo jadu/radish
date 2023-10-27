@@ -3,14 +3,20 @@
 namespace Radish\Consumer;
 
 use Mockery;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
+use Radish\Broker\Message;
+use Radish\Broker\Queue;
+use Radish\Broker\QueueCollection;
+use Radish\Middleware\InitializableInterface;
+use RuntimeException;
 
-class ConsumerTest extends \PHPUnit_Framework_TestCase
+class ConsumerTest extends MockeryTestCase
 {
     public $queues;
 
-    public function setUp()
+    public function setUp(): void
     {
-        $this->queues = Mockery::mock('Radish\Broker\QueueCollection', [
+        $this->queues = Mockery::mock(QueueCollection::class, [
             'consume' => null
         ]);
     }
@@ -26,9 +32,9 @@ class ConsumerTest extends \PHPUnit_Framework_TestCase
         $consumer->consume();
     }
 
-    public function testConsumeShouldInitializeMiddleware()
+    public function testConsumeShouldInitializeMiddleware(): void
     {
-        $middleware = Mockery::mock('Radish\Middleware\InitializableInterface');
+        $middleware = Mockery::mock(InitializableInterface::class);
         $middleware->shouldReceive('initialize')
             ->once();
 
@@ -36,11 +42,11 @@ class ConsumerTest extends \PHPUnit_Framework_TestCase
         $consumer->consume();
     }
 
-    public function testProcess()
+    public function testProcess(): void
     {
         $queueName = 'test_message';
 
-        $queue = Mockery::mock('Radish\Broker\Queue', [
+        $queue = Mockery::mock(Queue::class, [
             'getName' => $queueName
         ]);
 
@@ -48,7 +54,7 @@ class ConsumerTest extends \PHPUnit_Framework_TestCase
             ->with($queueName)
             ->andReturn($queue);
 
-        $message = Mockery::mock('Radish\Broker\Message', [
+        $message = Mockery::mock(Message::class, [
             'getRoutingKey' => $queueName
         ]);
 
@@ -66,27 +72,24 @@ class ConsumerTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($workerCalled);
     }
 
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage Worker not defined for queue
-     */
-    public function testProcessWhenWorkerNotAvailable()
+    public function testProcessWhenWorkerNotAvailable(): void
     {
         $queueName = 'test_message';
-
-        $queue = Mockery::mock('Radish\Broker\Queue', [
+        $queue = Mockery::mock(Queue::class, [
             'getName' => $queueName
         ]);
+        $message = Mockery::mock(Message::class, [
+            'getRoutingKey' => $queueName
+        ]);
+        $consumer = new Consumer($this->queues, [], []);
 
         $this->queues->shouldReceive('get')
             ->with($queueName)
             ->andReturn($queue);
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Worker not defined for queue');
 
-        $message = Mockery::mock('Radish\Broker\Message', [
-            'getRoutingKey' => $queueName
-        ]);
 
-        $consumer = new Consumer($this->queues, [], []);
         $consumer->process($message);
     }
 }

@@ -3,13 +3,14 @@
 namespace Radish\Middleware\Doctrine;
 
 use Doctrine\Common\EventManager;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\DBAL\Schema\AbstractAsset;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Events;
 use Doctrine\ORM\Internal\Hydration\AbstractHydrator;
 use Doctrine\Persistence\ObjectManager;
 use Mockery;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 use Mockery\MockInterface;
 use Psr\Log\LoggerInterface;
 use Radish\Broker\Message;
@@ -20,7 +21,7 @@ use Radish\Broker\Queue;
  *
  * @author Jadu Ltd.
  */
-class ObjectManagerMiddlewareTest extends \PHPUnit_Framework_TestCase
+class ObjectManagerMiddlewareTest extends MockeryTestCase
 {
     public $callable;
     /**
@@ -28,7 +29,7 @@ class ObjectManagerMiddlewareTest extends \PHPUnit_Framework_TestCase
      */
     public $logger;
     /**
-     * @var MockInterface|ManagerRegistry
+     * @var MockInterface|Registry
      */
     public $managerRegistry;
     /**
@@ -53,7 +54,7 @@ class ObjectManagerMiddlewareTest extends \PHPUnit_Framework_TestCase
 
         $this->message = Mockery::mock(Message::class);
 
-        $this->managerRegistry = Mockery::mock(ManagerRegistry::class);
+        $this->managerRegistry = Mockery::mock(Registry::class);
 
         $this->queue = Mockery::mock(Queue::class);
 
@@ -204,7 +205,7 @@ class ObjectManagerMiddlewareTest extends \PHPUnit_Framework_TestCase
     /**
      * @return array
      */
-    private function returnProvider(): array
+    public function returnProvider(): array
     {
         return [
             [true],

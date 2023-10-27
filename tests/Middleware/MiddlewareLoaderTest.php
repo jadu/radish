@@ -3,10 +3,11 @@
 namespace Radish\Middleware;
 
 use Mockery;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 use Mockery\Mock;
 use PHPUnit_Framework_TestCase;
 
-class MiddlewareLoaderTest extends PHPUnit_Framework_TestCase
+class MiddlewareLoaderTest extends MockeryTestCase
 {
     /**
      * @var Mock|MiddlewareRegistry
@@ -17,13 +18,13 @@ class MiddlewareLoaderTest extends PHPUnit_Framework_TestCase
      */
     private $loader;
 
-    public function setUp()
+    public function setUp(): void
     {
-        $this->middlewareRegistry = Mockery::mock('Radish\Middleware\MiddlewareRegistry');
+        $this->middlewareRegistry = Mockery::mock(MiddlewareRegistry::class);
         $this->loader = new MiddlewareLoader($this->middlewareRegistry);
     }
 
-    public function testLoadWithConfigurableMiddleware()
+    public function testLoadWithConfigurableMiddleware(): void
     {
         $middlewareOptions = [
             'max_messages' => [
@@ -31,7 +32,7 @@ class MiddlewareLoaderTest extends PHPUnit_Framework_TestCase
             ]
         ];
 
-        $middleware = Mockery::mock('Radish\Middleware\ConfigurableInterface');
+        $middleware = Mockery::mock(ConfigurableInterface::class);
 
         $middleware->shouldReceive('configureOptions')
             ->andReturnUsing(function ($resolver) {
@@ -53,13 +54,13 @@ class MiddlewareLoaderTest extends PHPUnit_Framework_TestCase
         $this->loader->load($middlewareOptions);
     }
 
-    public function testLoadWithConfigurableMiddlewareWhenOptionsNotProvided()
+    public function testLoadWithConfigurableMiddlewareWhenOptionsNotProvided(): void
     {
         $middlewareOptions = [
             'max_messages' => true
         ];
 
-        $middleware = Mockery::mock('Radish\Middleware\ConfigurableInterface');
+        $middleware = Mockery::mock(ConfigurableInterface::class);
 
         $middleware->shouldReceive('configureOptions')
             ->andReturnUsing(function ($resolver) {

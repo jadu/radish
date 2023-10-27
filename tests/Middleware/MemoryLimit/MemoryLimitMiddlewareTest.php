@@ -3,22 +3,25 @@
 namespace Radish\Middleware\MemoryLimit;
 
 use Mockery;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
+use Psr\Log\LoggerInterface;
 use Radish\Broker\Message;
+use Radish\Broker\Queue;
 
-class MemoryLimitMiddlewareTest extends \PHPUnit_Framework_TestCase
+class MemoryLimitMiddlewareTest extends MockeryTestCase
 {
     public $logger;
     public $message;
     public $queue;
 
-    public function setUp()
+    public function setUp(): void
     {
-        $this->logger = Mockery::mock('Psr\Log\LoggerInterface', [
+        $this->logger = Mockery::mock(LoggerInterface::class, [
             'info' => null
         ]);
 
-        $this->message = Mockery::mock('Radish\Broker\Message');
-        $this->queue = Mockery::mock('Radish\Broker\Queue');
+        $this->message = Mockery::mock(Message::class);
+        $this->queue = Mockery::mock(Queue::class);
     }
 
     public function returnProvider()
@@ -32,7 +35,7 @@ class MemoryLimitMiddlewareTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider returnProvider
      */
-    public function testWhenNoMemoryLimit($return)
+    public function testWhenNoMemoryLimit($return): void
     {
         $middleware = new MemoryLimitMiddleware($this->logger);
 
@@ -41,7 +44,7 @@ class MemoryLimitMiddlewareTest extends \PHPUnit_Framework_TestCase
         }));
     }
 
-    public function testWhenMemoryLimitNotExceeded()
+    public function testWhenMemoryLimitNotExceeded(): void
     {
         $middleware = new MemoryLimitMiddleware($this->logger);
         $middleware->setOptions([
@@ -53,7 +56,7 @@ class MemoryLimitMiddlewareTest extends \PHPUnit_Framework_TestCase
         }));
     }
 
-    public function testWhenMemoryLimitExceeded()
+    public function testWhenMemoryLimitExceeded(): void
     {
         $middleware = new MemoryLimitMiddleware($this->logger);
         $middleware->setOptions([
@@ -65,7 +68,7 @@ class MemoryLimitMiddlewareTest extends \PHPUnit_Framework_TestCase
         }));
     }
 
-    public function testWhenMemoryLimitReached()
+    public function testWhenMemoryLimitReached(): void
     {
         $middleware = new MemoryLimitMiddleware($this->logger);
         $middleware->setOptions([

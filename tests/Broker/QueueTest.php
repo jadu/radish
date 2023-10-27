@@ -5,10 +5,10 @@ namespace Radish\Broker;
 use AMQPEnvelope;
 use AMQPQueue;
 use Mockery;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 use Mockery\Mock;
-use PHPUnit_Framework_TestCase;
 
-class QueueTest extends PHPUnit_Framework_TestCase
+class QueueTest extends MockeryTestCase
 {
     /**
      * @var Queue
@@ -23,7 +23,7 @@ class QueueTest extends PHPUnit_Framework_TestCase
      */
     private $amqpQueue;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->amqpQueue = Mockery::mock('AMQPQueue', [
             'declareQueue' => null,
@@ -31,14 +31,14 @@ class QueueTest extends PHPUnit_Framework_TestCase
             'setFlags' => null,
         ]);
 
-        $this->connection = Mockery::mock('Radish\Broker\Connection', [
+        $this->connection = Mockery::mock(Connection::class, [
             'createQueue' => $this->amqpQueue,
         ]);
-        
+
         $this->queue = new Queue($this->connection, 'test_queue', true, []);
     }
 
-    public function testDeclareQueueSetsMaxPriorityArgOnAmqpQueue()
+    public function testDeclareQueueSetsMaxPriorityArgOnAmqpQueue(): void
     {
         $this->queue->setMaxPriority(100);
 
@@ -49,7 +49,7 @@ class QueueTest extends PHPUnit_Framework_TestCase
         $this->queue->declareQueue();
     }
 
-    public function testDeclareQueueDoesntSetMaxPriorityOnAmqpWhenNull()
+    public function testDeclareQueueDoesntSetMaxPriorityOnAmqpWhenNull(): void
     {
         $this->queue->setMaxPriority(null);
 
@@ -68,7 +68,7 @@ class QueueTest extends PHPUnit_Framework_TestCase
         static::assertNull($this->queue->pop());
     }
 
-    public function testPopReturnsMessageWhenMessageInQueue()
+    public function testPopReturnsMessageWhenMessageInQueue(): void
     {
         $this->amqpQueue->shouldReceive('get')
             ->andReturn(Mockery::mock(new AMQPEnvelope()))
@@ -76,6 +76,6 @@ class QueueTest extends PHPUnit_Framework_TestCase
 
         $message = $this->queue->pop();
 
-        static::assertInstanceOf('Radish\Broker\Message', $message);
+        static::assertInstanceOf(Message::class, $message);
     }
 }
