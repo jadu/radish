@@ -26,7 +26,7 @@ class QueueTest extends MockeryTestCase
     public function setUp(): void
     {
         $this->amqpQueue = Mockery::mock('AMQPQueue', [
-            'declareQueue' => null,
+            'declareQueue' => 0,
             'setName' => null,
             'setFlags' => null,
         ]);
@@ -62,7 +62,7 @@ class QueueTest extends MockeryTestCase
     public function testPopReturnsNullWhenNoMessages()
     {
         $this->amqpQueue->shouldReceive('get')
-            ->andReturn(false)
+            ->andReturn(null)
             ->once();
 
         static::assertNull($this->queue->pop());
@@ -71,7 +71,25 @@ class QueueTest extends MockeryTestCase
     public function testPopReturnsMessageWhenMessageInQueue(): void
     {
         $this->amqpQueue->shouldReceive('get')
-            ->andReturn(Mockery::mock(new AMQPEnvelope()))
+            ->andReturn(Mockery::mock(AMQPEnvelope::class, [
+                'getAppId' => 'app-id',
+                'getBody' => 'body',
+                'getContentEncoding' => 'content-encoding',
+                'getContentType' => 'content-type',
+                'getDeliveryMode' => 1,
+                'getDeliveryTag' => 1,
+                'getExchangeName' => 'exchange-name',
+                'getExpiration' => 'expiration',
+                'getHeaders' => [],
+                'getMessageId' => 'message-id',
+                'getPriority' => 1,
+                'isRedelivery' => false,
+                'getReplyTo' => 'reply-to',
+                'getRoutingKey' => 'routing-key',
+                'getTimestamp' => null,
+                'getType' => 'type',
+                'getUserId' => 'user-id',
+            ]))
             ->once();
 
         $message = $this->queue->pop();

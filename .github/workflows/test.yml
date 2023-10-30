@@ -1,0 +1,35 @@
+name: Test
+
+on: [push]
+
+permissions:
+  contents: read
+
+jobs:
+  unit-tests:
+    name: Unit Tests
+
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version:
+          - '7.3'
+          - '7.4'
+          - '8.1'
+          - '8.2'
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: php-actions/composer@v6
+        with:
+          php_version: ${{ matrix.php-version }}
+          php_extensions: amqp
+      - name: Check amqp version
+        run: php --ri amqp | grep Version
+      - name: PHPUnit tests
+        uses: php-actions/phpunit@v3
+        with:
+          version: 8.5
+          php_version: ${{ matrix.php-version }}
+          php_extensions: "amqp"
