@@ -8,7 +8,7 @@ class Message
 {
     protected $appId;
     protected $body;
-    protected bool $unsubscribable = false;
+    protected $unsubscribable = false;
     protected $contentEncoding;
     protected $contentType;
     protected $deliveryMode;
