@@ -8,6 +8,7 @@ class Message
 {
     protected $appId;
     protected $body;
+    protected bool $unsubscribable = false;
     protected $contentEncoding;
     protected $contentType;
     protected $deliveryMode;
@@ -264,5 +265,15 @@ class Message
     public function setUserId($userId)
     {
         $this->userId = $userId;
+    }
+
+    public function isUnsubscribable(): bool
+    {
+        return $this->unsubscribable;
+    }
+
+    public function setUnsubscribable(bool $unsubscribable): void
+    {
+        $this->unsubscribable = $unsubscribable;
     }
 }
