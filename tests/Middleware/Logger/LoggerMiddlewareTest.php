@@ -5,7 +5,6 @@ namespace Radish\Middleware\Logger;
 use Mockery;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 use Mockery\Mock;
-use PHPUnit_Framework_TestCase;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Radish\Broker\Message;
@@ -54,6 +53,12 @@ class LoggerMiddlewareTest extends MockeryTestCase
         ]);
 
         $this->middleware = new LoggerMiddleware($this->logger);
+        $this->middleware->setOptions(
+            [
+                'log_level' => 1,
+                'log_message' => 'non-null message'
+            ]
+        );
     }
 
     public function testInvokeWithDefaultOptionsLogsCorrectly(): void
